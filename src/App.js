@@ -1,24 +1,50 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from "react";
+import { Routes, Route } from "react-router-dom";
+import { v4 as uuid } from "uuid";
+import Menu from "./components/Menu";
+import "./css/app.css";
+import Home from "./pages/Home";
+import TechnoAdd from "./pages/TechnoAdd";
+import TechnoList from "./pages/TechnoList";
+import { useLocalStorage } from "./hooks/useLocalStorage";
 
 function App() {
+  const [technos, setTechnos] = useState([]);
+  const localTechnos = "technos";
+  const [storeValue, setStoreValue] = useLocalStorage(localTechnos, []);
+
+  useEffect(() => {
+    setTechnos(storeValue);
+  }, []);
+
+  useEffect(() => {
+    setStoreValue(technos);
+  }, [technos]);
+
+  function handleAddTechno(techno) {
+    console.log(techno);
+    setTechnos([...technos, { ...techno, technoId: uuid() }]);
+  }
+
+  function handleDelete(technoId) {
+    setTechnos(technos.filter((techno) => techno.technoId !== technoId));
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Menu />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/add"
+          element={<TechnoAdd handleAddTechno={handleAddTechno} />}
+        />
+        <Route
+          path="/list"
+          element={<TechnoList technos={technos} handleDelete={handleDelete} />}
+        />
+      </Routes>
+    </>
   );
 }
 
